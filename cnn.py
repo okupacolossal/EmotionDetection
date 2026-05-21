@@ -1,63 +1,52 @@
 import numpy as np
-filters = np.random.randn(32, 3, 3) * 0.01
-biases = np.zeros(32)
 
-flat_size = 32 * 23 * 23   # 16928
-W1 = np.random.randn(flat_size, 128) * 0.01
-b1 = np.zeros(128)
-
-W2 = np.random.randn(128, 5) * 0.01
-b2 = np.zeros(5)
-
-def relu(x):
-    return np.maximum(x, 0)
+class EmotionCNN:
+    def __init__(self, image_size=48):
         
-def conv_forward(input, filters, biases):
-    num_filters = filters.shape[0]
-    h_out = input.shape[0] - 3 + 1
-    w_out = input.shape[1] - 3 + 1
-    output = np.zeros((num_filters, h_out, w_out))
+        self.filter_size = 3
+        self.num_filters = 32
+        self.conv_filters = np.random.randn(self.num_filters, self.filter_size, self.filter_size) * 0.01
+        # This is our convolutional layer, for our CNN. Why is it 32, 3 3?
+        # We want 32 filters sliding accross an image, 3*3 in size.
+        # this creates exactly that, a list of 32 values, in 3x3 formats, with random
+        # initialization. This is the filter idea
 
-    for f_idx, filter in enumerate(filters):
-        for row in range(h_out):
-            for col in range(w_out):
-                patch = input[row:row+3, col:col+3]
-                output[f_idx, row, col] = np.sum(patch * filter) + biases[f_idx]
-    return output
+        self.conv_biases = np.zeros(32)
+        # This is the bias for each filter, we have 32 filters, so we have 32 biases. The weighted sum
+        # will apply for each filter, so we need a bias for each one aswell. We initiate these as zeros
 
-def maxpool_forward(input, pool_size = 2):
+        self.max_pool_size = 2
+        # Max pooling is a downsampling technique, it reduces the spatial dimensions of the input. 
+        # It does this by taking the maximum value from a set of values in a defined window (in this case, 2x2). 
+        # This helps to reduce the computational complexity and also helps 
+        # to make the model more robust to small translations in the input. 
 
-    num_filters, h, w = input.shape
-    h_out = h // 2
-    w_out = w // 2
-    output = np.zeros((num_filters, h_out, w_out))
-    
-    for filter in range(num_filters):
-        for row in range(h_out):
-            for col in range(w_out):
-                patch = input[filter, row*pool_size:row*pool_size+pool_size, col*pool_size:col*pool_size+pool_size]
-                output[filter, row, col] = np.max(patch)
+        self.pos_size = (image_size - 3 + 1) // 2
+        # After the convolutional layer, the spatial dimensions of the output will be reduced. 
+        # The formula for calculating the output size after convolution is:
+        # output_size = (input_size - filter_size + 2 * padding) / stride + 1
+        # In our case, we have an input size of 48, a filter size of 3, no padding, and a stride of 1.
+        # So the output size after convolution will be:
+        # output_size = (48 - 3 + 0) / 1 + 1 = 46
+        # After max pooling with a pool size of 2, the spatial dimensions will be halved, so the final output size will be:
+        # pos_size = 46 // 2 = 23
 
-    return output
-
-def flatten(x):
-    return x.reshape(-1)
-
-def fc_forward(input, W, b):
-    return np.dot(input, W) + b
-
-def softmax(x):
-    num = np.exp(x)
-    return num / np.sum(num)
-
-def cross_entropy(probs, label):
-    return -np.log(np.sum(probs * label))
-
-
+        self.hidden_size = 128
+        # This is the number of neurons in the hidden layer of our fully connected network.
+        
+        W1, b1 = np.random.randn((self.pos_size * self.pos_size * self.num_filters), self.hidden_size)
         
 
+        self.fc1 = None
+        self.fc2 = None
+        self.max_pool = None
+        self.conv_layer = None
+
+    def forward(self):
+        pass
+
     
-    
+Cnn = EmotionCNN()
 
 
 
