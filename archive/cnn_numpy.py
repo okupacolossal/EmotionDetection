@@ -125,22 +125,35 @@ class EmotionCNN:
 
         
         dL = dL.reshape(self.pool_shape)
-
-
+        # we need to reshape dL to the shape of the maxpool output (32x23x23), 
+        
         # de-pool
         conv = self.conv_output
+        # get our conv layer's output
         empty_conv = np.zeros(conv.shape)
+        # create an empty conv we'll fill in
 
         for index in range(self.num_filters):
             for row in range(23):
                 for col in range(23):
                     empty_conv[index, row*2:row*2+2, col*2:col*2+2] += dL[index, row, col] * self.max_mask[index, row*2:row*2+2, col*2:col*2+2]
+        # loop over the maxpool output (filter by filter, row by row, col for col)
+        # what we do here is simple; when we max pooled, we only got 1 single value from each 2x2
+        # so in this case, we' have a max__mask that has 1s where the max values were, and 0s everywhere else.
+        #  So to de-pool, we take the gradient from the maxpool layer (dL[index, row, col]) 
+        # and we put it back in the position of the max value in the 2x2 patch, which is what 
+        # self.max_mask is for. We multiply dL by the max_mask to ensure that 
+        # only the position of the max value gets the gradient, and the rest get 0.
 
         dL = empty_conv
         dL = dL * (self.conv_output > 0)
 
+        # run ReLU again and set dL to our conv layer's output where it's active, and 0 where it's not
+
         dW_conv = np.zeros_like(self.conv_filters)
         db_conv = np.zeros_like(self.conv_biases)
+
+        # create empty arrays for the gradients of the convolutional filters and biases
 
         size_after = self.image_size - self.filter_size + 1 
 
@@ -150,6 +163,12 @@ class EmotionCNN:
                     patch = self.input[row:row+3, col:col+3]
                     dW_conv[index] += patch * dL[index, row, col]
                     db_conv[index] += dL[index, row, col]
+        # loop over the conv layer's output (filter by filter, row by row, col for col)
+        # for each position we get the corresponding patch and do the exact thing we did above
+        # the gradient for the filter is the patch multiplied by the gradient coming from above (dL[index, row, col])
+        # the gradient for the bias is just the gradient coming from above (dL[index, row, col]) because ~
+        # the bias is added flatly to the output of the convolution, so its contribution to 
+        # the error is directly proportional to the error itself
 
         return dW_conv, db_conv, dW1, db1, dW2, db2
     
@@ -228,7 +247,7 @@ def train(cnn, X_train, y_train, epochs, lr=0.01, batch_size=32):
             dW1_acc = np.zeros_like(cnn.W1)
             db1_acc = np.zeros_like(cnn.b1)
             dW2_acc = np.zeros_like(cnn.W2)
-            db2_acc = np.zeros_like(cnn.b2)
+            db2_acc = np.zeros_like(cnn.b2) 
 
             if i % (batch_size * 2) == 0:
                     print(f"  Batch {i//batch_size}/{len(X_train)//batch_size}")
@@ -245,9 +264,6 @@ def train(cnn, X_train, y_train, epochs, lr=0.01, batch_size=32):
                 dW2_acc += dW2
                 db2_acc += db2
                 epoch_loss += loss
-                
-
-            
             cnn.update(dW_conv_acc/batch_size, db_conv_acc/batch_size, 
                 dW1_acc/batch_size, db1_acc/batch_size, 
                 dW2_acc/batch_size, db2_acc/batch_size, lr)

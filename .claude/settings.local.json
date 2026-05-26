@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(cmd /c \"dir \"\"C:\\\\Users\\\\Gonca\\\\Desktop\\\\MYBRAIN\\\\Claude\"\" /b /a /s\")",
+      "PowerShell(cmd /c \"cd C:\\\\Users\\\\Gonca\\\\Desktop\\\\MYBRAIN && git status\")",
+      "PowerShell(cmd /c \"cd C:\\\\Users\\\\Gonca\\\\Desktop\\\\MYBRAIN && git add Claude/CLAUDE.md Personal/Daily/23.05.2026.md ProfessionalCareer/Emotion Detection CNN.md && git commit -m \"\"Update emotion detection notes, daily log, and Claude learning mode instructions\"\"\")"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\Gonca\\Desktop\\MYBRAIN\\Claude",
+      "C:\\Users\\Gonca\\Desktop\\MYBRAIN\\Personal\\Daily",
+      "C:\\Users\\Gonca\\Desktop\\MYBRAIN\\ProfessionalCareer"
+    ]
+  }
+}
