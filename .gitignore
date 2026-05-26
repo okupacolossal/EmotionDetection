@@ -20,13 +20,11 @@ env/
 .DS_Store
 Thumbs.db
 
-# Dataset / large files
-dataset.npz
+# Dataset / large files (tracked via Git LFS — see .gitattributes)
 data/
 
-# Model weights (large binaries — commit only intentionally)
-weights/*.pth
-weights/*.pt
+# IDE
+.vscode/
 
 # IDE
 .vscode/
